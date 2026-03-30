@@ -1,78 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>GTPS Launcher</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GTPS Panel</title>
 
 <style>
 body {
-    margin:0;
-    background:#020617;
-    color:white;
-    font-family:Arial;
-    text-align:center;
+  margin: 0;
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+  text-align: center;
 }
 
-.box {
-    margin-top:120px;
-    background:#0f172a;
-    padding:30px;
-    border-radius:20px;
-    width:350px;
-    margin-left:auto;
-    margin-right:auto;
+.container {
+  padding: 20px;
+}
+
+.status {
+  padding: 10px 20px;
+  border-radius: 10px;
+  display: inline-block;
+  margin: 10px;
+}
+
+.up { background: #22c55e; }
+.down { background: #ef4444; }
+
+.card {
+  background: #1e293b;
+  padding: 15px;
+  margin: 10px;
+  border-radius: 12px;
 }
 
 button {
-    padding:15px;
-    width:100%;
-    background:#22c55e;
-    border:none;
-    border-radius:10px;
-    cursor:pointer;
+  margin-top: 15px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: white;
+  cursor: pointer;
 }
 </style>
-</head>
 
+</head>
 <body>
 
-<div class="box">
-    <h2 id="name">Loading...</h2>
-    <p id="status">...</p>
-    <h3 id="online">0</h3>
+<div class="container">
+  <h1 id="serverName">Loading...</h1>
+  <div id="status" class="status">Checking...</div>
 
-    <button onclick="join()">PLAY</button>
+  <div class="card">Online: <span id="online">0</span></div>
+  <div class="card">Worlds: <span id="worlds">0</span></div>
+  <div class="card">Accounts: <span id="accounts">0</span></div>
 
-    <p>Worlds: <span id="worlds">0</span></p>
-    <p>Guilds: <span id="guilds">0</span></p>
-    <p>Accounts: <span id="accounts">0</span></p>
+  <button onclick="joinDiscord()">Join Discord</button>
 </div>
 
 <script>
-let joinLink = "#";
+let joinLink = "";
 
-async function load() {
-    const res = await fetch("/api/config?" + Date.now());
-    const c = await res.json();
+// 🔥 GANTI INI KE IP VPS LU
+const API_URL = "http://IP-VPS:3000/status";
 
-    document.getElementById("name").innerText = c.server_name;
-    document.getElementById("online").innerText = c.online + " Online";
-    document.getElementById("worlds").innerText = c.worlds;
-    document.getElementById("guilds").innerText = c.guilds;
-    document.getElementById("accounts").innerText = c.accounts;
+async function loadData() {
+  try {
+    const res = await fetch(API_URL);
+    const data = await res.json();
 
-    document.getElementById("status").innerText =
-        c.status === "UP" ? "🟢 Online" : "🔴 Offline";
+    document.getElementById('serverName').innerText = data.server_name;
+    document.getElementById('online').innerText = data.online;
+    document.getElementById('worlds').innerText = data.worlds;
+    document.getElementById('accounts').innerText = data.accounts;
 
-    joinLink = c.join_link;
+    const statusEl = document.getElementById('status');
+    statusEl.innerText = data.status;
+
+    if (data.status === 'UP') {
+      statusEl.className = 'status up';
+    } else {
+      statusEl.className = 'status down';
+    }
+
+    joinLink = data.join_link;
+
+  } catch (e) {
+    document.getElementById('status').innerText = 'ERROR';
+  }
 }
 
-function join() {
+function joinDiscord() {
+  if (joinLink) {
     window.location.href = joinLink;
+  }
 }
 
-setInterval(load, 3000);
-load();
+// 🔥 refresh real-time
+setInterval(loadData, 2000);
+loadData();
 </script>
 
 </body>
