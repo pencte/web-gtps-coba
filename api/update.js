@@ -1,4 +1,7 @@
-global.config = global.config || {};
+import fs from "fs";
+
+const FILE = "/tmp/config.json";
+const TOKEN = "SUPER_RANDOM_TOKEN";
 
 export default function handler(req, res) {
     if (req.method !== "POST") {
@@ -7,11 +10,14 @@ export default function handler(req, res) {
 
     const { token, ...data } = req.body;
 
-    if (token !== "tpsjaya1") {
+    if (token !== TOKEN) {
         return res.status(403).json({ error: "Unauthorized" });
     }
 
-    global.config = data;
-
-    res.json({ success: true });
+    try {
+        fs.writeFileSync(FILE, JSON.stringify(data));
+        return res.json({ success: true });
+    } catch (e) {
+        return res.status(500).json({ error: "Failed save" });
+    }
 }
