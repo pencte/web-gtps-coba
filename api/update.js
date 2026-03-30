@@ -7,7 +7,7 @@ export default function handler(req, res) {
 
     const { token, ...data } = req.body;
 
-    if (token !== "SUPER_RANDOM_TOKEN") {
+    if (token !== "tpsjaya1") {
         return res.status(403).json({ error: "Unauthorized" });
     }
 
