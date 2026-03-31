@@ -3,86 +3,100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TerorismePS Monitor</title>
+<title>TerorismePS</title>
 
 <style>
+:root {
+  --bg: #f5f5f5;
+  --card: #ffffff;
+  --text: #111;
+  --soft: #f0f0f0;
+}
+
+.dark {
+  --bg: #0f1115;
+  --card: #161b22;
+  --text: #e6edf3;
+  --soft: #21262d;
+}
+
 body {
-  background: #f5f5f5;
+  background: var(--bg);
+  color: var(--text);
   font-family: Arial;
   display: flex;
   justify-content: center;
   margin-top: 50px;
+  transition: 0.3s;
 }
 
 /* CARD */
 .card {
-  background: white;
+  background: var(--card);
   width: 400px;
   border-radius: 20px;
   padding: 20px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  position: relative;
 }
 
-/* HEADER */
-.header {
-  display: flex;
-  align-items: center;
-  gap: 15px;
+/* STATUS BOX */
+.status-box {
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  position: absolute;
+  top: 15px;
+  left: 15px;
 }
 
-/* STATUS BULAT */
-.status-circle {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: green;
-  box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
-}
-
-/* TITLE */
+/* TITLE CENTER */
 .title {
-  font-size: 20px;
+  text-align: center;
+  font-size: 22px;
   font-weight: bold;
+  margin-bottom: 10px;
 }
 
 /* STATUS TEXT */
 .status-text {
-  margin-top: 5px;
-  font-size: 14px;
-  background: #e6f4ea;
-  padding: 3px 8px;
-  border-radius: 10px;
-  display: inline-block;
+  text-align: center;
+  font-size: 13px;
+  margin-bottom: 10px;
 }
 
 /* BANNER */
 .banner {
-  margin-top: 15px;
   width: 100%;
-  height: 120px;
+  height: 130px;
   border-radius: 15px;
-  background: url('banner.png') center/cover no-repeat;
+  background: url('/banner.png') center/cover no-repeat;
 }
 
-/* BUTTON + ONLINE */
+/* ROW */
 .row {
   display: flex;
   justify-content: space-between;
-  margin-top: 15px;
+  margin-top: 12px;
 }
 
-/* JOIN BUTTON */
+/* BUTTON */
 .join-btn {
-  background: #f0f0f0;
+  background: var(--soft);
   padding: 10px 15px;
   border-radius: 10px;
   font-weight: bold;
   cursor: pointer;
+  transition: 0.2s;
 }
 
-/* ONLINE BOX */
+.join-btn:hover {
+  opacity: 0.8;
+}
+
+/* ONLINE */
 .online-box {
-  background: #f0f0f0;
+  background: var(--soft);
   padding: 10px 15px;
   border-radius: 10px;
 }
@@ -92,13 +106,22 @@ body {
   display: flex;
   justify-content: space-between;
   margin-top: 15px;
-  background: #f8f8f8;
+  background: var(--soft);
   padding: 10px;
   border-radius: 10px;
 }
 
 .stat {
   text-align: center;
+  font-size: 12px;
+}
+
+/* TOGGLE */
+.toggle {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  cursor: pointer;
   font-size: 12px;
 }
 </style>
@@ -108,58 +131,57 @@ body {
 
 <div class="card">
 
-  <!-- HEADER -->
-  <div class="header">
-    <div id="circle" class="status-circle"></div>
-    <div>
-      <div class="title">Bonner Pam</div>
-      <div id="status" class="status-text">UP</div>
-    </div>
-  </div>
+  <div id="statusBox" class="status-box"></div>
 
-  <!-- BANNER -->
+  <div class="toggle" onclick="toggleMode()">🌓</div>
+
+  <div class="title">TerorismePS</div>
+  <div id="statusText" class="status-text">-</div>
+
   <div class="banner"></div>
 
-  <!-- BUTTON + ONLINE -->
   <div class="row">
-    <div class="join-btn">JOIN SERVER</div>
+    <div class="join-btn" onclick="join()">JOIN SERVER</div>
     <div class="online-box"><span id="players">0</span> online</div>
   </div>
 
-  <!-- STATS -->
   <div class="stats">
-    <div class="stat">
-      🌍<br><span id="worlds">0</span><br>Worlds
-    </div>
-    <div class="stat">
-      👤<br><span id="accounts">0</span><br>Accounts
-    </div>
-    <div class="stat">
-      🛡<br><span id="guilds">0</span><br>Guilds
-    </div>
+    <div class="stat">🌍<br><span id="worlds">0</span><br>Worlds</div>
+    <div class="stat">👤<br><span id="accounts">0</span><br>Accounts</div>
+    <div class="stat">🛡<br><span id="guilds">0</span><br>Guilds</div>
   </div>
 
 </div>
 
 <script>
+// 🔥 GANTI LINK WA LU DISINI
+function join() {
+  window.open("https://wa.me/628XXXXXXXXXX", "_blank");
+}
+
+// DARK MODE
+function toggleMode() {
+  document.body.classList.toggle("dark");
+}
+
+// LOAD DATA
 async function load() {
   const res = await fetch("/api/status");
   const data = await res.json();
 
-  const circle = document.getElementById("circle");
-  const status = document.getElementById("status");
+  const box = document.getElementById("statusBox");
+  const text = document.getElementById("statusText");
 
   if (data.status === "online") {
-    circle.style.background = "green";
-    status.innerText = "UP";
+    box.style.background = "#3fb950";
+    text.innerText = "SERVER ONLINE";
   } else {
-    circle.style.background = "red";
-    status.innerText = "DOWN";
+    box.style.background = "#f85149";
+    text.innerText = "SERVER OFFLINE";
   }
 
   document.getElementById("players").innerText = data.players;
-  
-  // kalau belum ada di bot, kasih default
+
   document.getElementById("worlds").innerText = data.worlds || 1000;
   document.getElementById("accounts").innerText = data.accounts || 500;
   document.getElementById("guilds").innerText = data.guilds || 10;
