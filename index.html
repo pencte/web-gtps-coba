@@ -5,47 +5,84 @@
 <title>TerorismePS</title>
 
 <style>
+:root {
+  --bg: #111;
+  --card: #1b1b1b;
+  --text: #fff;
+}
+
+.light {
+  --bg: #f2f2f2;
+  --card: #ffffff;
+  --text: #000;
+}
+
 body {
-  background:#111;
-  color:white;
-  font-family:Arial;
-  display:flex;
-  justify-content:center;
-  margin-top:50px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial;
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
 }
 
 .card {
-  width:350px;
-  background:#1b1b1b;
-  padding:20px;
-  border-radius:15px;
-  position:relative;
+  width: 350px;
+  background: var(--card);
+  padding: 20px;
+  border-radius: 15px;
+  position: relative;
 }
 
+/* BANNER */
 .banner {
-  height:120px;
-  background:url('/banner.png') center/cover;
-  border-radius:10px;
+  height: 120px;
+  background: url('/banner.png') center/cover;
+  border-radius: 10px;
+  position: relative;
 }
 
-/* MENU */
+/* MENU (POJOK BANGET) */
 .menu-btn {
-  position:absolute;
-  top:10px;
-  right:15px;
-  cursor:pointer;
-  font-size:18px;
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  background: rgba(0,0,0,0.4);
+  padding: 4px 8px;
+  border-radius: 6px;
 }
 
+/* STATUS BOX */
+.status-box {
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  border-radius: 2px;
+  margin-right: 5px;
+}
+
+/* STATS */
 .stats {
-  display:flex;
-  justify-content:space-between;
-  margin-top:10px;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
 }
 
 .stat {
-  text-align:center;
-  font-size:12px;
+  text-align: center;
+  font-size: 12px;
+}
+
+/* BUTTON */
+.btn {
+  margin-top: 10px;
+  padding: 8px;
+  background: #333;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
 }
 </style>
 </head>
@@ -54,13 +91,17 @@ body {
 
 <div class="card">
 
-<div class="menu-btn" onclick="toggleMenu()">☰</div>
-
 <h2 style="text-align:center;">TerorismePS</h2>
 
-<div class="banner"></div>
+<div class="banner">
+  <div class="menu-btn" onclick="toggleMenu()">☰</div>
+</div>
 
-<p>Status: <span id="status"></span></p>
+<p>
+  <span id="statusBox" class="status-box"></span>
+  Status: <span id="status"></span>
+</p>
+
 <p>Players: <span id="players"></span></p>
 
 <div class="stats">
@@ -77,6 +118,9 @@ body {
   </div>
 </div>
 
+<!-- DARK MODE BUTTON -->
+<div class="btn" onclick="toggleTheme()">🌙 / ☀ Mode</div>
+
 </div>
 
 <script>
@@ -84,7 +128,16 @@ async function load() {
   const res = await fetch("/api/status");
   const d = await res.json();
 
+  // STATUS TEXT
   status.innerText = d.status;
+
+  // STATUS BOX COLOR
+  if (d.status === "online") {
+    statusBox.style.background = "lime";
+  } else {
+    statusBox.style.background = "red";
+  }
+
   players.innerText = d.players;
   worlds.innerText = d.worlds;
   accounts.innerText = d.accounts;
@@ -93,6 +146,7 @@ async function load() {
 setInterval(load,3000);
 load();
 
+// MENU OWNER
 function toggleMenu() {
   const pass = prompt("Owner password:");
 
@@ -104,12 +158,18 @@ function toggleMenu() {
   }
 }
 
+// OWNER DATA
 async function loadOwner() {
   const res = await fetch("/api/status");
   const d = await res.json();
 
   cpu.innerText = d.cpu + "%";
   ram.innerText = d.ram.used + " GB";
+}
+
+// DARK MODE
+function toggleTheme() {
+  document.body.classList.toggle("light");
 }
 </script>
 
