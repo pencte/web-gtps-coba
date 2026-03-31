@@ -1,54 +1,115 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <title>TerorismePS</title>
+
 <style>
-body{background:#111;color:white;font-family:Arial;text-align:center}
-.card{background:#1b1b1b;padding:20px;border-radius:15px;width:350px;margin:auto}
-.banner{height:120px;background:url('/banner.png') center/cover;border-radius:10px}
+body {
+  background:#111;
+  color:white;
+  font-family:Arial;
+  display:flex;
+  justify-content:center;
+  margin-top:50px;
+}
+
+.card {
+  width:350px;
+  background:#1b1b1b;
+  padding:20px;
+  border-radius:15px;
+  position:relative;
+}
+
+.banner {
+  height:120px;
+  background:url('/banner.png') center/cover;
+  border-radius:10px;
+}
+
+/* MENU */
+.menu-btn {
+  position:absolute;
+  top:10px;
+  right:15px;
+  cursor:pointer;
+  font-size:18px;
+}
+
+.stats {
+  display:flex;
+  justify-content:space-between;
+  margin-top:10px;
+}
+
+.stat {
+  text-align:center;
+  font-size:12px;
+}
 </style>
 </head>
+
 <body>
 
 <div class="card">
 
-<h2>TerorismePS</h2>
+<div class="menu-btn" onclick="toggleMenu()">☰</div>
+
+<h2 style="text-align:center;">TerorismePS</h2>
+
 <div class="banner"></div>
 
 <p>Status: <span id="status"></span></p>
 <p>Players: <span id="players"></span></p>
 
-<input id="pass" placeholder="owner password">
-<button onclick="login()">Login</button>
+<div class="stats">
+  <div class="stat">🌍<br><span id="worlds">0</span></div>
+  <div class="stat">👤<br><span id="accounts">0</span></div>
+  <div class="stat">🛡<br><span id="guilds">0</span></div>
+</div>
 
-<div id="owner" style="display:none">
-<p>CPU: <span id="cpu"></span></p>
-<p>RAM: <span id="ram"></span></p>
+<!-- OWNER PANEL -->
+<div id="ownerPanel" style="display:none;">
+  <div class="stats">
+    <div class="stat">⚡<br><span id="cpu">0</span></div>
+    <div class="stat">🧠<br><span id="ram">0</span></div>
+  </div>
 </div>
 
 </div>
 
 <script>
-async function load(){
- const r=await fetch('/api/status');
- const d=await r.json();
- status.innerText=d.status;
- players.innerText=d.players;
-}
-setInterval(load,3000);load();
+async function load() {
+  const res = await fetch("/api/status");
+  const d = await res.json();
 
-async function login(){
- const r=await fetch('/api/login',{
-  method:'POST',
-  headers:{'Content-Type':'application/json'},
-  body:JSON.stringify({password:pass.value})
- });
- if(r.ok){
-  const d=await fetch('/api/admin').then(r=>r.json());
-  owner.style.display='block';
-  cpu.innerText=d.cpu+"%";
-  ram.innerText=d.ram.used+"GB";
- }
+  status.innerText = d.status;
+  players.innerText = d.players;
+  worlds.innerText = d.worlds;
+  accounts.innerText = d.accounts;
+  guilds.innerText = d.guilds;
+}
+setInterval(load,3000);
+load();
+
+function toggleMenu() {
+  const pass = prompt("Owner password:");
+
+  if (pass === "admin123") {
+    ownerPanel.style.display = "block";
+    loadOwner();
+  } else {
+    alert("Wrong password");
+  }
+}
+
+async function loadOwner() {
+  const res = await fetch("/api/status");
+  const d = await res.json();
+
+  cpu.innerText = d.cpu + "%";
+  ram.innerText = d.ram.used + " GB";
 }
 </script>
 
