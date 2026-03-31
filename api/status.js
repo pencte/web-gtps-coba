@@ -8,5 +8,5 @@ export default function handler(req, res) {
     setData(latest);
     return res.status(200).json({ ok: true });
   }
-  return res.status(200).json(latest);
+  res.status(200).json(latest);
 }
